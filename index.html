@@ -1,447 +1,212 @@
-﻿<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vương Quốc Hữu Tỉ – Hành Trình Hiệp Sĩ Toán 7</title>
-<style>
-  :root {
-    --primary: #1a5276;
-    --secondary: #117a65;
-    --accent: #d35400;
-    --gold: #f1c40f;
-    --danger: #c0392b;
-    --success: #27ae60;
-    --bg: #f0f4f8;
-    --card: #ffffff;
-    --text: #1e293b;
-    --muted: #64748b;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-  body { background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
-  
-  /* Header Bar */
-  .topbar {
-    background: linear-gradient(90deg, #1a5276, #117a65);
-    color: #fff;
-    padding: 12px 24px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .brand { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-  .stats-bar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
-  .stat-pill {
-    background: rgba(255,255,255,0.18);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.92rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn-review {
-    background: #e67e22;
-    color: #fff;
-    border: none;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .btn-review:hover { background: #d35400; transform: scale(1.03); }
+﻿import docx
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 
-  .container { max-width: 1020px; margin: 24px auto; padding: 0 16px; }
-  .screen { display: none; animation: fadeIn 0.35s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+doc = Document()
 
-  .card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-  }
+# Set page margins
+for section in doc.sections:
+    section.top_margin = Inches(0.75)
+    section.bottom_margin = Inches(0.75)
+    section.left_margin = Inches(0.75)
+    section.right_margin = Inches(0.75)
 
-  /* Intro & Character Setup */
-  .story-box {
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: #fff;
-    border-radius: 16px;
-    padding: 28px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .story-slide { font-size: 1.15rem; line-height: 1.6; margin: 16px 0; min-height: 70px; }
-  .btn {
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
-  .btn-success { background: var(--success); }
-  .btn-warning { background: #e67e22; }
-  .btn-danger { background: var(--danger); }
-  .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+# Styles
+style_normal = doc.styles['Normal']
+style_normal.font.name = 'Times New Roman'
+style_normal.font.size = Pt(11.5)
+style_normal.font.color.rgb = RGBColor(30, 30, 30)
 
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
-  @media(max-width: 650px){ .form-grid { grid-template-columns: 1fr; } }
-  .input-group label { display: block; font-weight: 700; margin-bottom: 6px; }
-  .input-group input {
-    width: 100%; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1rem;
-  }
+def set_cell_background(cell, fill_hex):
+    tcPr = cell._tc.get_or_add_tcPr()
+    shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
+    tcPr.append(shd)
 
-  .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 12px 0; }
-  .class-card {
-    border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; cursor: pointer; transition: 0.2s;
-  }
-  .class-card.selected { border-color: var(--secondary); background: #e8f8f5; box-shadow: 0 4px 12px rgba(17,122,101,0.15); }
-  .avatar-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
-  .avt-item {
-    font-size: 1.8rem; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
-    border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s;
-  }
-  .avt-item.selected { border-color: var(--accent); background: #fef5e7; transform: scale(1.1); }
+def add_heading_styled(text, level=1):
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(12 if level == 1 else (10 if level == 2 else 8))
+    p.paragraph_format.space_after = Pt(4)
+    run = p.add_run(text)
+    run.font.name = 'Times New Roman'
+    run.bold = True
+    if level == 1:
+        run.font.size = Pt(15)
+        run.font.color.rgb = RGBColor(26, 82, 118) # Dark Blue
+    elif level == 2:
+        run.font.size = Pt(13.5)
+        run.font.color.rgb = RGBColor(17, 122, 101) # Teal
+    elif level == 3:
+        run.font.size = Pt(12)
+        run.font.color.rgb = RGBColor(125, 60, 152) # Purple
+    else:
+        run.font.size = Pt(11.5)
+        run.font.color.rgb = RGBColor(180, 95, 6) # Amber/Brown
+    return p
 
-  /* Map & Worlds */
-  .worlds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
-  .world-card {
-    background: #fff; border-radius: 16px; padding: 20px; border-top: 6px solid var(--primary);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.07); display: flex; flex-direction: column; justify-content: space-between;
-  }
-  .world-card h3 { color: var(--primary); margin-bottom: 8px; }
-  .stages-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
-  .stage-box {
-    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;
-  }
-  .stage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 700; }
-  .diff-btns { display: flex; gap: 6px; }
-  .diff-btn {
-    flex: 1; padding: 6px 8px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: #fff; transition: 0.15s;
-  }
-  .diff-easy { background: #27ae60; }
-  .diff-med { background: #2980b9; }
-  .diff-hard { background: #8e44ad; }
-  .diff-btn:hover { opacity: 0.9; transform: scale(1.03); }
-  .badge-done { background: #d4efdf; color: #1e8449; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; }
+# Title Banner
+title_p = doc.add_paragraph()
+title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+title_run = title_p.add_run("KỊCH BẢN TRÒ CHƠI GIÁO DỤC TOÁN 7\n“VƯƠNG QUỐC HỮU TỈ”")
+title_run.font.name = 'Times New Roman'
+title_run.font.size = Pt(20)
+title_run.bold = True
+title_run.font.color.rgb = RGBColor(192, 57, 43)
 
-  /* Quiz Arena */
-  .npc-banner {
-    background: #fef9e7; border-left: 5px solid #f39c12; padding: 14px 18px; border-radius: 10px; margin-bottom: 16px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .quiz-header {
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-    padding-bottom: 12px; border-bottom: 2px solid #f1f5f9; margin-bottom: 18px;
-  }
-  .timer-box {
-    background: #fdebd0; color: #b9770e; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 1.05rem;
-  }
-  .timer-box.danger { background: #fadbd8; color: #c0392b; animation: pulse 0.8s infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+sub_p = doc.add_paragraph()
+sub_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+sub_run = sub_p.add_run("Hành trình của Hiệp sĩ Toán học • Toán 7\nGiáo viên: Vũ Như Huynh – Trường THCS Khương Thượng – Phân hiệu 1")
+sub_run.font.name = 'Times New Roman'
+sub_run.font.size = Pt(11.5)
+sub_run.italic = True
+sub_run.font.color.rgb = RGBColor(86, 101, 115)
 
-  .q-meta { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .tag { padding: 4px 10px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; background: #e2e8f0; color: #334155; }
-  .tag-diff-easy { background: #d4efdf; color: #145a32; }
-  .tag-diff-med { background: #d6eaf8; color: #1b4f72; }
-  .tag-diff-hard { background: #ebdef0; color: #4a235a; }
+doc.add_paragraph()
 
-  .q-text { font-size: 1.18rem; font-weight: 700; line-height: 1.55; margin-bottom: 18px; white-space: pre-line; }
+# =========================================================================
+# PHẦN I: CỐT TRUYỆN MỞ ĐẦU & HỆ THỐNG TẠO NHÂN VẬT
+# =========================================================================
+add_heading_styled("PHẦN I: CỐT TRUYỆN MỞ ĐẦU & HỆ THỐNG TẠO NHÂN VẬT", 1)
 
-  /* Question Types UI */
-  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media(max-width: 600px){ .options-grid { grid-template-columns: 1fr; } }
-  .opt-btn {
-    background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; padding: 14px 16px;
-    text-align: left; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: 0.15s;
-  }
-  .opt-btn:hover:not(:disabled) { border-color: var(--primary); background: #ebf5fb; }
-  .opt-btn.correct { background: #d4efdf; border-color: #27ae60; color: #145a32; }
-  .opt-btn.wrong { background: #fadbd8; border-color: #c0392b; color: #78281f; }
-  .opt-btn.eliminated { opacity: 0.35; text-decoration: line-through; pointer-events: none; }
+p_intro = doc.add_paragraph()
+p_intro.add_run("1. Cốt truyện dẫn nhập (3 Slide mở đầu khi vào game):\n").bold = True
+p_intro.add_run("• Slide 1 (Bối cảnh): “Vương quốc Hữu Tỉ từng yên bình, nơi mọi phân số sống hoà thuận trên trục số.”\n")
+p_intro.add_run("• Slide 2 (Biến cố): “Một đêm, Quỷ Sai Dấu và Phù thủy Mẫu Số kéo đến. Chúng làm dấu trừ biến mất, bắt các phân số cộng mà không quy đồng, rồi phong ấn cả năm vùng đất.”\n")
+p_intro.add_run("• Slide 3 (Sứ mệnh): “Chỉ một Hiệp sĩ Toán học mới phá được phong ấn. Người đó chính là em!” → Nút hành động: [Tạo nhân vật] (hoặc [Chơi tiếp] nếu đã có tài khoản lưu sẵn).")
 
-  .input-answer-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .input-answer-box input {
-    padding: 12px 16px; font-size: 1.1rem; border: 2px solid #94a3b8; border-radius: 10px; width: 260px;
-  }
+p_char = doc.add_paragraph()
+p_char.add_run("2. Màn hình Tạo Hiệp sĩ & Chọn Ảnh đại diện (Bắt buộc trước khi vào làm bài):\n").bold = True
+p_char.add_run("Trước khi bước vào bản đồ 5 vùng đất, học sinh thiết lập hồ sơ Hiệp sĩ của riêng mình gồm 4 bước:\n")
+p_char.add_run("• Bước 1 – Nhập Tên nhân vật: Học sinh gõ tên hiển thị (Ví dụ: Minh Anh, An, Van, Bình...).\n")
+p_char.add_run("• Bước 2 – Nhập Lớp: Ghi tên lớp (Ví dụ: 7A1) để thầy cô theo dõi và xếp hạng.\n")
+p_char.add_run("• Bước 3 – Chọn Lớp nhân vật (4 hệ kỹ năng đặc biệt):\n")
 
-  /* Match Pairs */
-  .match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .match-col { display: flex; flex-direction: column; gap: 10px; }
-  .match-item {
-    padding: 12px; border: 2px solid #cbd5e1; border-radius: 10px; background: #f8fafc;
-    cursor: pointer; font-weight: 700; text-align: center; transition: 0.15s;
-  }
-  .match-item.selected { border-color: #e67e22; background: #fef5e7; }
-  .match-item.matched { border-color: #27ae60; background: #d4efdf; color: #145a32; pointer-events: none; }
+# Table of Character Classes
+t_class = doc.add_table(rows=1, cols=3)
+t_class.alignment = WD_TABLE_ALIGNMENT.CENTER
+t_class.style = 'Table Grid'
+c_headers = ["Lớp nhân vật", "Trang bị đặc trưng", "Kỹ năng hỗ trợ trong trận đấu"]
+for i, h in enumerate(c_headers):
+    cell = t_class.rows[0].cells[i]
+    cell.text = h
+    set_cell_background(cell, "1A5276")
+    for p_c in cell.paragraphs:
+        p_c.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        for r in p_c.runs:
+            r.bold = True
+            r.font.color.rgb = RGBColor(255, 255, 255)
+            r.font.size = Pt(11)
 
-  /* Sort Items */
-  .sort-list { display: flex; flex-direction: column; gap: 8px; max-width: 550px; }
-  .sort-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 10px; font-weight: 700;
-  }
-  .sort-controls button {
-    background: #e2e8f0; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: 800; margin-left: 4px;
-  }
+classes_data = [
+    ("Chiến binh", "Giáp dày", "Có tối đa 7 tim thay vì 5 tim mặc định, tăng khả năng chịu đòn khi gặp câu khó."),
+    ("Pháp sư", "Thần chú", "Nhận 2 lần gợi ý miễn phí cho mỗi thử thách."),
+    ("Thám hiểm", "Ống nhòm", "Mỗi thử thách được loại bỏ tự động 1 đáp án sai (50:50)."),
+    ("Thợ rèn", "Khiên rèn", "Lần trả lời sai đầu tiên trong mỗi thử thách được khiên đỡ đòn, không bị mất tim.")
+]
+for idx, (cname, equip, skill) in enumerate(classes_data):
+    rc = t_class.add_row().cells
+    bg = "F8F9F9" if idx % 2 == 1 else "FFFFFF"
+    for j, val in enumerate([cname, equip, skill]):
+        rc[j].text = val
+        set_cell_background(rc[j], bg)
+        for p_c in rc[j].paragraphs:
+            for r in p_c.runs:
+                r.font.size = Pt(10.5)
+                if j == 0:
+                    r.bold = True
 
-  /* Multi True/False */
-  .tf-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-  .tf-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
-  .tf-btn { padding: 6px 14px; border: 2px solid #cbd5e1; border-radius: 8px; background: #fff; cursor: pointer; font-weight: 700; margin-right: 6px; }
-  .tf-btn.active-true { background: #27ae60; color: #fff; border-color: #27ae60; }
-  .tf-btn.active-false { background: #c0392b; color: #fff; border-color: #c0392b; }
+p_avt = doc.add_paragraph()
+p_avt.paragraph_format.space_before = Pt(6)
+p_avt.add_run("• Bước 4 – Chọn Hình đại diện (Avatar): Học sinh tự chọn 1 trong 12 biểu tượng linh vật đáng yêu (Cáo, Hổ, Gấu trúc, Ếch xanh, Sư tử, Gấu Koala, Chim cánh cụt, Kỳ lân, Rồng xanh, Mèo vàng, Cún con, Khỉ con) rồi nhấn nút [Lên đường!] để vào bản đồ.")
 
-  /* Number Line Interactive */
-  .nl-wrapper { background: #f8fafc; padding: 20px; border-radius: 12px; border: 2px solid #cbd5e1; text-align: center; }
-  svg.number-line { width: 100%; max-width: 720px; height: 110px; cursor: pointer; user-select: none; }
+# =========================================================================
+# PHẦN II: CẤU TRÚC 5 VÒNG & LUẬT CHƠI 6 CHẶNG (3 MỨC ĐỘ TỰ CHỌN)
+# =========================================================================
+add_heading_styled("PHẦN II: CẤU TRÚC 5 VÒNG & LUẬT CHƠI 6 CHẶNG (3 MỨC ĐỘ TỰ CHỌN)", 1)
 
-  /* Feedback Box */
-  .feedback-box {
-    margin-top: 18px; padding: 16px; border-radius: 12px; display: none; line-height: 1.55;
-  }
-  .feedback-box.ok { background: #d4efdf; border-left: 6px solid #27ae60; color: #145a32; }
-  .feedback-box.err { background: #fadbd8; border-left: 6px solid #c0392b; color: #78281f; }
+p_vong = doc.add_paragraph()
+p_vong.add_run("1. Bản đồ 5 Vòng chơi (5 Vùng đất bị phong ấn):\n").bold = True
+vongs = [
+    ("Vòng 1: Làng Tập Hợp Q", "Khái niệm số hữu tỉ, phân số bằng nhau, số đối, biểu diễn trên trục số, so sánh số hữu tỉ."),
+    ("Vòng 2: Thành Bốn Phép Tính", "Cộng, trừ, nhân, chia số hữu tỉ; tính chất phép toán; quy tắc dấu ngoặc."),
+    ("Vòng 3: Rừng Lũy Thừa", "Lũy thừa với số mũ tự nhiên của số hữu tỉ; nhân/chia hai lũy thừa cùng cơ số; lũy thừa của lũy thừa."),
+    ("Vòng 4: Núi Thứ Tự Và Chuyển Vế", "Thứ tự thực hiện phép tính trong Q; quy tắc chuyển vế đổi dấu; bài toán tìm x."),
+    ("Vòng 5: Lâu Đài Phong Ấn", "Tổng hợp kiến thức toàn chương Số hữu tỉ, toán thực tế, giải mã phong ấn cuối cùng.")
+]
+for v_title, v_desc in vongs:
+    r = p_vong.add_run(f"  • {v_title}: ")
+    r.bold = True
+    p_vong.add_run(f"{v_desc}\n")
 
-  .skill-bar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-  .skill-btn {
-    background: #8e44ad; color: #fff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.88rem;
-  }
-  .skill-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-</style>
-</head>
-<body>
+p_luat = doc.add_paragraph()
+p_luat.add_run("2. Cơ chế 6 Chặng & Quy định chọn Mức độ (Dễ – Thường – Khó):\n").bold = True
+p_luat.add_run("Trong mỗi vòng chơi, học sinh lần lượt chinh phục 6 chặng: (1) Cổng làng → (2) Giếng số đối → (3) Đấu trí ở phiên chợ → (4) Cầu trục số → (5) Tháp so sánh → (6) Hang sói (Boss). Tại mỗi chặng, học sinh được tự do lựa chọn 1 trong 3 mức độ: DỄ, THƯỜNG hoặc KHÓ cho mỗi lượt thi.\n\n")
 
-<div class="topbar">
-  <div class="brand">⚔️ VƯƠNG QUỐC HỮU TỈ – TOÁN 7</div>
-  <div class="stats-bar" id="hudBar" style="display:none;">
-    <div class="stat-pill" id="hudPlayer">🦊 Hiệp sĩ</div>
-    <div class="stat-pill">❤️ <span id="hudHearts">5</span></div>
-    <div class="stat-pill">⭐ <span id="hudStars">0</span></div>
-    <div class="stat-pill">✨ <span id="hudXP">0</span> XP</div>
-    <button class="btn-review" onclick="openReviewBank()">📚 Kho Ôn Tập (<span id="wrongCount">0</span>)</button>
-    <button class="btn-review" style="background:#2980b9;" onclick="showScreen('mapScreen')">🗺️ Bản đồ</button>
-  </div>
-</div>
+t_rules = doc.add_table(rows=1, cols=4)
+t_rules.alignment = WD_TABLE_ALIGNMENT.CENTER
+t_rules.style = 'Table Grid'
+r_headers = ["Nhóm Chặng", "Số lượng câu hỏi theo mức độ", "Luật chơi & Thời gian", "Kết quả, Ôn tập & Hồi sinh"]
+for i, h in enumerate(r_headers):
+    cell = t_rules.rows[0].cells[i]
+    cell.text = h
+    set_cell_background(cell, "117A65")
+    for p_c in cell.paragraphs:
+        p_c.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        for r in p_c.runs:
+            r.bold = True
+            r.font.color.rgb = RGBColor(255, 255, 255)
+            r.font.size = Pt(10.5)
 
-<div class="container">
-  <!-- SCREEN 1: INTRO & CHARACTER SETUP -->
-  <div id="setupScreen" class="screen active">
-    <div class="story-box">
-      <h2>🏰 CỐT TRUYỆN: VƯƠNG QUỐC HỮU TỈ</h2>
-      <div class="story-slide" id="storyText">
-        “Vương quốc Hữu Tỉ từng yên bình, nơi mọi phân số sống hoà thuận trên trục số.”
-      </div>
-      <div style="display:flex; justify-content:center; gap:10px;">
-        <button class="btn btn-warning" onclick="prevSlide()">◀ Trước</button>
-        <button class="btn btn-success" onclick="nextSlide()">Tiếp theo ▶</button>
-      </div>
-    </div>
+rules_rows = [
+    ("Chặng 1: Cổng làng\nChặng 2: Giếng số đối\nChặng 4: Cầu trục số\nChặng 5: Tháp so sánh",
+     "• Mức Dễ: 4 câu\n• Mức Thường: 4 câu\n• Mức Khó: 4 câu\n(Mỗi lượt thi chọn 1 mức độ)",
+     "• Không giới hạn thời gian.\n• Qua mỗi câu hiển thị ngay kết quả Đúng/Sai; nếu sai hiển thị đáp án đúng và lời giải chi tiết để sửa.\n• Đúng hết 4/4 câu: Chúc mừng hoàn hảo + thưởng tối đa Sao, Vàng, XP.",
+     "• Học sinh có thể chọn Chơi lại ở mức độ khác hoặc chơi lại để kiếm thêm Sao và Tim.\n• Câu sai được lưu tự động vào Kho Ôn Tập.\n• Nếu mất hết Tim giữa chừng: Tiên Hồi Sinh cho phép làm lại các câu vừa sai để lấy lại Tim."),
+    ("Chặng 3:\nĐấu trí ở phiên chợ",
+     "• Mức Dễ: 6 câu\n• Mức Thường: 6 câu\n• Mức Khó: 6 câu\n(Mỗi lượt thi chọn 1 mức độ)",
+     "• Giới hạn 60 giây đếm ngược.\n• Trả lời sai bị trừ trực tiếp 3 giây.\n• Điều kiện qua vòng: Phải trả lời đúng ít nhất 3/6 câu. Nếu chưa đủ 3 câu đúng thì chưa qua vòng và phải làm lại.",
+     "• Sau khi hết giờ/xong vòng: Hiển thị danh sách các câu đã làm sai để học sinh xem lại.\n• Tất cả câu sai đều đưa vào Kho Ôn Tập.\n• Học sinh có thể chọn Chơi lại ngay để cải thiện thành tích."),
+    ("Chặng 6:\nHang sói (BOSS)",
+     "• Mức Dễ: 4 câu\n• Mức Thường: 4-5 câu\n• Mức Khó: 5-6 câu",
+     "• Đấu trí trực tiếp với Boss (Sói Lạc Số / Quỷ Sai Dấu / Phù thủy Mẫu Số).\n• Mỗi câu đúng trừ 1 thanh máu của Boss; trả lời sai bị mất 1 Tim.",
+     "• Nếu mất hết Tim trước khi hạ Boss: Tiên Hồi Sinh hỗ trợ ôn lại các câu vừa sai để hồi tim và tiếp tục chiến đấu.\n• Hạ gục Boss để mở khóa Vòng tiếp theo.")
+]
+for idx, r_val in enumerate(rules_rows):
+    rc = t_rules.add_row().cells
+    bg = "F8F9F9" if idx % 2 == 1 else "FFFFFF"
+    for j, val in enumerate(r_val):
+        rc[j].text = val
+        set_cell_background(rc[j], bg)
+        for p_c in rc[j].paragraphs:
+            for r in p_c.runs:
+                r.font.size = Pt(10)
+                if j == 0:
+                    r.bold = True
 
-    <div class="card">
-      <h2 style="color:var(--primary); margin-bottom:8px;">🛡️ THIẾT LẬP HỒ SƠ HIỆP SĨ</h2>
-      <p style="color:var(--muted); margin-bottom:14px;">Giáo viên hướng dẫn: <strong>Trần Thị Thu Chẳng</strong> – Trường THCS NAM ĐÀN – Phân hiệu 1</p>
-      
-      <div class="form-grid">
-        <div class="input-group">
-          <label>Bước 1: Nhập Tên Hiệp sĩ</label>
-          <input type="text" id="playerName" placeholder="Ví dụ: Minh Anh, Hoàng Nam...">
-        </div>
-        <div class="input-group">
-          <label>Bước 2: Nhập Lớp</label>
-          <input type="text" id="playerClass" placeholder="Ví dụ: 7A1">
-        </div>
-      </div>
+doc.add_paragraph()
 
-      <label style="font-weight:700; display:block; margin-top:10px;">Bước 3: Chọn Hệ Kỹ Năng Nhân Vật</label>
-      <div class="class-grid" id="classGrid">
-        <div class="class-card selected" data-class="warrior" onclick="selectClass('warrior', this)">
-          <h4>🗡️ Chiến binh (Giáp dày)</h4>
-          <p style="font-size:0.88rem; color:#475569; margin-top:4px;">Tối đa <strong>7 Tim</strong> thay vì 5 Tim mặc định.</p>
-        </div>
-        <div class="class-card" data-class="mage" onclick="selectClass('mage', this)">
-          <h4>🔮 Pháp sư (Thần chú)</h4>
-          <p style="font-size:0.88rem; color:#475569; margin-top:4px;">Nhận <strong>2 lần Gợi ý</strong> miễn phí mỗi chặng.</p>
-        </div>
-        <div class="class-card" data-class="explorer" onclick="selectClass('explorer', this)">
-          <h4>🔭 Thám hiểm (Ống nhòm)</h4>
-          <p style="font-size:0.88rem; color:#475569; margin-top:4px;">Loại bỏ <strong>1 đáp án sai</strong> (50:50) mỗi chặng.</p>
-        </div>
-        <div class="class-card" data-class="blacksmith" onclick="selectClass('blacksmith', this)">
-          <h4>🛡️ Thợ rèn (Khiên rèn)</h4>
-          <p style="font-size:0.88rem; color:#475569; margin-top:4px;">Miễn nhiễm <strong>lần sai đầu tiên</strong> mỗi chặng.</p>
-        </div>
-      </div>
+# Helper function to add formatted questions
+def add_question_block(q_title, q_body, q_ans):
+    pq = doc.add_paragraph()
+    pq.paragraph_format.space_before = Pt(2)
+    pq.paragraph_format.space_after = Pt(3)
+    pq.paragraph_format.left_indent = Inches(0.15)
+    r1 = pq.add_run(q_title + " ")
+    r1.bold = True
+    pq.add_run(q_body + "\n")
+    r2 = pq.add_run("   → " + q_ans)
+    r2.italic = True
+    r2.font.color.rgb = RGBColor(30, 132, 73)
 
-      <label style="font-weight:700; display:block; margin-top:14px;">Bước 4: Chọn Linh Vật Đại Diện</label>
-      <div class="avatar-grid" id="avatarGrid"></div>
+# =========================================================================
+# PHẦN III: NGÂN HÀNG CÂU HỎI CHI TIẾT THEO TỪNG CHẶNG & MỨC ĐỘ
+# =========================================================================
+add_heading_styled
+=================== FULL QUESTION BANK: 5 VÒNG x 4 CHẶNG x 3 MỨC ĐỘ ====================
 
-      <div style="margin-top:20px; text-align:center;">
-        <button class="btn btn-success" style="font-size:1.1rem; padding:14px 32px;" onclick="startGame()">🚀 LÊN ĐƯỜNG CHINH PHỤC 5 VÒNG!</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCREEN 2: WORLD MAP (5 VÒNG x 4 CHẶNG x 3 MỨC ĐỘ) -->
-  <div id="mapScreen" class="screen">
-    <div class="npc-banner">
-      <div style="font-size:2.2rem;">🦉</div>
-      <div>
-        <strong>Cụ Cú Mèo:</strong> “Chào mừng Hiệp sĩ đến với Bản đồ 5 Vùng Đất! Mỗi vòng gồm <strong>4 Chặng</strong> (Khởi động → Vượt chướng ngại vật → Tăng tốc 60s → Về đích Boss). Hãy chọn mức độ <strong>Dễ, Thường hoặc Khó</strong> phù hợp để giải cứu Vương quốc!”
-      </div>
-    </div>
-    <div class="worlds-grid" id="worldsContainer"></div>
-  </div>
-
-  <!-- SCREEN 3: QUIZ ARENA -->
-  <div id="quizScreen" class="screen">
-    <div class="card">
-      <div class="quiz-header">
-        <div>
-          <h3 id="stageTitle" style="color:var(--primary);">Vòng 1 – Chặng 1</h3>
-          <span id="stageSubtitle" style="font-size:0.9rem; color:var(--muted);">Câu 1 / 4</span>
-        </div>
-        <div id="bossHpBox" style="display:none; font-weight:800; color:var(--danger);">👹 Máu Boss: <span id="bossHp">4</span></div>
-        <div id="timerBox" class="timer-box" style="display:none;">⏱️ <span id="timeLeft">60</span>s</div>
-        <button class="btn btn-outline" style="padding:6px 12px; font-size:0.88rem;" onclick="exitStage()">✖ Thoát chặng</button>
-      </div>
-
-      <div class="npc-banner" id="stageNpcBanner">
-        <div style="font-size:1.8rem;" id="stageNpcIcon">🦉</div>
-        <div id="stageNpcText" style="font-size:0.95rem;">Lời thoại dẫn nhập...</div>
-      </div>
-
-      <div class="skill-bar" id="skillBar"></div>
-
-      <div class="q-meta" id="qMeta"></div>
-      <div class="q-text" id="qText">Nội dung câu hỏi...</div>
-
-      <div id="qInteractiveArea"></div>
-
-      <div class="feedback-box" id="feedbackBox"></div>
-
-      <div style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
-        <button class="btn btn-primary" id="submitBtn" onclick="submitCurrentAnswer()">✔ Kiểm tra đáp án</button>
-        <button class="btn btn-success" id="nextBtn" style="display:none;" onclick="nextQuestion()">Câu tiếp theo ▶</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCREEN 4: STAGE RESULT / REVIVAL / VICTORY -->
-  <div id="resultScreen" class="screen">
-    <div class="card" style="text-align:center;" id="resultContent"></div>
-  </div>
-
-  <!-- SCREEN 5: REVIEW BANK -->
-  <div id="reviewScreen" class="screen">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="color:var(--accent);">📚 KHO ÔN TẬP CÁC CÂU ĐÃ LÀM SAI</h2>
-        <button class="btn btn-outline" onclick="showScreen('mapScreen')">◀ Quay lại Bản đồ</button>
-      </div>
-      <div id="reviewList"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ==================== STORY & AVATARS ====================
-const STORY_SLIDES = [
-  "“Vương quốc Hữu Tỉ từng yên bình, nơi mọi phân số sống hoà thuận trên trục số.”",
-  "“Một đêm, Quỷ Sai Dấu và Phù thủy Mẫu Số kéo đến. Chúng làm dấu trừ biến mất, bắt các phân số cộng mà không quy đồng, rồi phong ấn cả năm vùng đất.”",
-  "“Chỉ một Hiệp sĩ Toán học mới phá được phong ấn. Người đó chính là em! Hãy thiết lập hồ sơ Hiệp sĩ ngay bên dưới.”"
-];
-let slideIdx = 0;
-function nextSlide(){ slideIdx = (slideIdx + 1) % STORY_SLIDES.length; document.getElementById('storyText').innerText = STORY_SLIDES[slideIdx]; }
-function prevSlide(){ slideIdx = (slideIdx - 1 + STORY_SLIDES.length) % STORY_SLIDES.length; document.getElementById('storyText').innerText = STORY_SLIDES[slideIdx]; }
-
-const AVATARS = ["🦊","🐯","🐼","🐸","🦁","🐨","🐧","🦄","🐲","🐱","🐶","🐵"];
-let selectedAvatar = "🦊";
-let selectedClass = "warrior";
-
-window.onload = () => {
-  const ag = document.getElementById('avatarGrid');
-  AVATARS.forEach((a, i) => {
-    const div = document.createElement('div');
-    div.className = 'avt-item' + (i === 0 ? ' selected' : '');
-    div.innerText = a;
-    div.onclick = () => {
-      document.querySelectorAll('.avt-item').forEach(el => el.classList.remove('selected'));
-      div.classList.add('selected');
-      selectedAvatar = a;
-    };
-    ag.appendChild(div);
-  });
-};
-
-function selectClass(cls, el) {
-  selectedClass = cls;
-  document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-// ==================== PLAYER STATE ====================
-let player = {
-  name: "Hiệp sĩ",
-  clsName: "7A1",
-  role: "warrior",
-  avatar: "🦊",
-  hearts: 7,
-  maxHearts: 7,
-  stars: 0,
-  xp: 0,
-  completed: {},
-  wrongBank: []
-};
-
-function startGame() {
-  const nameVal = document.getElementById('playerName').value.trim();
-  const clsVal = document.getElementById('playerClass').value.trim();
-  player.name = nameVal || "Hiệp sĩ Vô Danh";
-  player.clsName = clsVal || "7A";
-  player.role = selectedClass;
-  player.avatar = selectedAvatar;
-  player.maxHearts = (selectedClass === 'warrior') ? 7 : 5;
-  player.hearts = player.maxHearts;
-
-  document.getElementById('hudBar').style.display = 'flex';
-  updateHUD();
-  renderMap();
-  showScreen('mapScreen');
-}
-
-function updateHUD() {
-  document.getElementById('hudPlayer').innerText = `${player.avatar} ${player.name} (${player.clsName})`;
-  document.getElementById('hudHearts').innerText = `${player.hearts}/${player.maxHearts}`;
-  document.getElementById('hudStars').innerText = player.stars;
-  document.getElementById('hudXP').innerText = player.xp;
-  document.getElementById('wrongCount').innerText = player.wrongBank.length;
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ==================== FULL QUESTION BANK: 5 VÒNG x 4 CHẶNG x 3 MỨC ĐỘ ====================
 const GAME_DATA = [
   {
     id: 1,
