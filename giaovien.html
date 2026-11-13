@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang Giáo Viên – Vương Quốc Hữu Tỉ (Toán 7)</title>
+  <style>
+    :root {
+      --primary: #114B3E;
+      --primary-light: #E8F2EF;
+      --primary-mid: #1F6E5C;
+      --accent-red: #C84B31;
+      --accent-amber-bg: #FEF3C7;
+      --accent-amber-text: #92400E;
+      --bg: #F7FAF9;
+      --card: #FFFFFF;
+      --border: #DCE6E3;
+      --text: #1E293B;
+      --muted: #5A6B66;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--border);
+    }
+    h1 { font-family: Georgia, "Times New Roman", serif; color: var(--primary); font-size: 28px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    select, button {
+      padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      border: 1.5px solid var(--primary); cursor: pointer; transition: 0.2s;
+    }
+    select { background: #fff; color: var(--primary); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-mid); }
+    .btn-outline { background: var(--primary-light); color: var(--primary); border-color: transparent; }
+    .btn-outline:hover { border-color: var(--primary); }
+
+    /* Top KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 18px; }
+    .kpi-card {
+      background: var(--primary-light); border-top: 4px solid var(--primary);
+      border-radius: 14px; padding: 20px 22px;
+    }
+    .kpi-num { font-family: Georgia, serif; font-size: 38px; font-weight: 700; color: var(--primary); line-height: 1.1; }
+    .kpi-num span { font-size: 22px; font-weight: 600; opacity: 0.85; }
+    .kpi-label { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+    /* Class Progress Bars */
+    .class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .class-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px 20px; display: flex; align-items: center; gap: 18px;
+    }
+    .class-badge { min-width: 68px; }
+    .class-name { font-family: Georgia, serif; font-size: 24px; font-weight: 700; color: var(--primary); }
+    .class-total { font-size: 12px; color: var(--muted); }
+    .class-bar-wrap { flex: 1; }
+    .class-stat-text { font-size: 14px; margin-bottom: 8px; color: var(--text); }
+    .progress-track { height: 12px; background: #E6ECEA; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+    /* Section Headings */
+    h2.sec-title {
+      font-family: Georgia, serif; color: var(--primary); font-size: 22px;
+      margin: 26px 0 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 22px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(17,75,62,0.04);
+    }
+    .panel-header {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      gap: 10px; margin-bottom: 18px;
+    }
+    .panel-title { font-weight: 700; font-size: 16px; color: var(--text); }
+    .legend { display: flex; gap: 16px; font-size: 13px; font-weight: 600; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    /* Horizontal Grouped Bar Chart */
+    .chart-row { display: grid; grid-template-columns: 200px 1fr; align-items: center; gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 640px) { .chart-row { grid-template-columns: 1fr; gap: 6px; } }
+    .chart-label { font-weight: 600; font-size: 14px; text-align: right; color: var(--text); }
+    @media (max-width: 640px) { .chart-label { text-align: left; } }
+    .bars-stack { border-left: 2px solid #CBD5E1; padding-left: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .bar-line { display: flex; align-items: center; gap: 8px; }
+    .bar { height: 18px; border-radius: 0 6px 6px 0; transition: width 0.6s ease; min-width: 4px; }
+    .bar-val { font-size: 13px; font-weight: 700; color: var(--text); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      background: var(--primary-light); color: var(--primary); text-align: left;
+      padding: 12px 14px; font-weight: 700; border-bottom: 1px solid var(--border);
+    }
+    td { padding: 12px 14px; border-bottom: 1px solid #EEF3F1; vertical-align: middle; }
+    tr:hover td { background: #FAFDFC; }
+    .tag-student {
+      display: inline-block; background: var(--accent-amber-bg); color: var(--accent-amber-text);
+      font-weight: 600; font-size: 12.5px; padding: 3px 10px; border-radius: 6px; margin: 2px 4px 2px 0;
+    }
+    .tag-weak {
+      display: inline-block; background: #FEE2E2; color: #991B1B;
+      font-weight: 600; font-size: 12.5px; padding: 3px 10px; border-radius: 6px;
+    }
+    .tag-good {
+      display: inline-block; background: var(--primary-light); color: var(--primary);
+      font-weight: 600; font-size: 12.5px; padding: 3px 10px; border-radius: 6px;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+    .status-msg { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Kết quả tự gửi về trang giáo viên</h1>
+      <p class="subtitle">GV: Trần Thị Thu Chẳng – Trường THCS Nam Đàn • Chuyên đề: Số hữu tỉ (Toán 7)</p>
+    </div>
+    <div class="controls">
+      <select id="classFilter" onchange="renderDashboard()">
+        <option value="ALL">Tất cả các lớp</option>
+      </select>
+      <button class="btn-primary" onclick="fetchData()">↻ Tải kết quả</button>
+      <button class="btn-outline" onclick="loadDemoData()">Xem dữ liệu mẫu</button>
+    </div>
+  </header>
+
+  <div id="statusMsg" class="status-msg">Đang kết nối dữ liệu từ Google Sheets...</div>
+
+  <!-- 3 THẺ KPI TỔNG QUAN -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-num" id="kpiStudents">0<span>/0 em</span></div>
+      <div class="kpi-label" id="kpiStudentsSub">đã chơi ở nhà (0% các lớp)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num" id="kpiQuestions">0</div>
+      <div class="kpi-label">câu hỏi các em đã tự làm</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num" id="kpiFinished">0 <span>em</span></div>
+      <div class="kpi-label">đã đi hết cả 5/5 vùng đất</div>
+    </div>
+  </div>
+
+  <!-- TIẾN ĐỘ TỪNG LỚP -->
+  <div class="class-grid" id="classProgressGrid"></div>
+
+  <!-- BIỂU ĐỒ TỈ LỆ LÀM SAI THEO DẠNG BÀI -->
+  <h2 class="sec-title">Tỉ lệ làm sai theo dạng bài</h2>
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Năm dạng bài trọng tâm, tính theo % câu làm sai</div>
+      <div class="legend" id="chartLegend"></div>
+    </div>
+    <div id="barChartContainer"></div>
+  </div>
+
+  <!-- MỤC 3: DẠNG CẢ LỚP SAI NHIỀU NHẤT KÈM TÊN CẦN HỖ TRỢ -->
+  <h2 class="sec-title">3. Dạng cả lớp sai nhiều nhất & Học sinh cần hỗ trợ</h2>
+  <div class="panel" style="padding: 0; overflow: hidden;">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 32%;">DẠNG BÀI</th>
+          <th style="width: 14%;">TỈ LỆ SAI</th>
+          <th>CẦN HỖ TRỢ (Lớp: <span id="lblCurrentClass">Tất cả</span>)</th>
+        </tr>
+      </thead>
+      <tbody id="supportTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- MỤC 1 & 2: BẢNG XẾP HẠNG & DẠNG YẾU NHẤT CỦA TỪNG NGƯỜI -->
+  <div class="two-col">
+    <div>
+      <h2 class="sec-title">1. Bảng xếp hạng Hiệp sĩ</h2>
+      <div class="panel" style="padding: 0; overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Họ tên</th>
+              <th>Lớp</th>
+              <th>Cấp độ / Hệ</th>
+              <th>Số sao</th>
+              <th>XP</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="sec-title">2. Dạng yếu nhất của từng người</h2>
+      <div class="panel" style="padding: 0; overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Học sinh</th>
+              <th>Lớp</th>
+              <th>Số câu sai</th>
+              <th>Dạng yếu nhất</th>
+            </tr>
+          </thead>
+          <tbody id="weaknessTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // DÁN URL WEB APP GOOGLE APPS SCRIPT CỦA CÔ VÀO ĐÂY:
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW_G8GjauYGnok6jzMWzRAN1Jd3JCZueL4scFnQO2q9FalhnavvH_z9il7KV3ocQsq/exec";
+
+  const CORE_TOPICS = [
+    "Quy tắc dấu ngoặc",
+    "Thứ tự phép tính",
+    "Chuyển vế, tìm x",
+    "So sánh, sắp xếp",
+    "Biểu diễn trên trục số",
+    "Lũy thừa số hữu tỉ",
+    "Bốn phép tính phân số"
+  ];
+
+  let appData = { rosters: { "7A4": 42, "7A7": 38 }, records: [] };
+
+  async function fetchData() {
+    const status = document.getElementById("statusMsg");
+    status.textContent = "Đang tải kết quả mới nhất từ Google Sheets...";
+    try {
+      const res = await fetch(APPS_SCRIPT_URL);
+      const json = await res.json();
+      if (json.status === "success") {
+        appData = json;
+        populateClassFilter();
+        renderDashboard();
+        status.textContent = "Đã cập nhật dữ liệu lúc " + new Date().toLocaleTimeString("vi-VN");
+      } else {
+        throw new Error("Lỗi dữ liệu");
+      }
+    } catch (e) {
+      status.textContent = "Chưa kết nối được Google Sheets hoặc chưa có dữ liệu. Đang hiển thị dữ liệu mẫu minh họa.";
+      loadDemoData();
+    }
+  }
+
+  function loadDemoData() {
+    appData = {
+      rosters: { "7A4": 42, "7A7": 38 },
+      records: [
+        { name: "Nguyễn Minh Anh", className: "7A4", heroClass: "Pháp sư", round: 5, correct: 18, total: 20, stars: 48, xp: 1450, topic: "Quy tắc dấu ngoặc", wrongItems: [{ topic: "Quy tắc dấu ngoặc" }], completedAll: true },
+        { name: "Trần Gia Bảo", className: "7A7", heroClass: "Chiến binh", round: 5, correct: 16, total: 22, stars: 44, xp: 1320, topic: "Thứ tự phép tính", wrongItems: [{ topic: "Quy tắc dấu ngoặc" }, { topic: "Thứ tự phép tính" }], completedAll: true },
+        { name: "Lê Thảo Vy", className: "7A4", heroClass: "Thám hiểm", round: 4, correct: 15, total: 18, stars: 39, xp: 1180, topic: "Chuyển vế, tìm x", wrongItems: [{ topic: "Chuyển vế, tìm x" }], completedAll: false },
+        { name: "Phạm Đức Huy", className: "7A7", heroClass: "Thợ rèn", round: 5, correct: 14, total: 20, stars: 37, xp: 1100, topic: "Quy tắc dấu ngoặc", wrongItems: [{ topic: "Quy tắc dấu ngoặc" }, { topic: "So sánh, sắp xếp" }], completedAll: true },
+        { name: "Hoàng Khánh Linh", className: "7A7", heroClass: "Pháp sư", round: 3, correct: 12, total: 18, stars: 31, xp: 940, topic: "Biểu diễn trên trục số", wrongItems: [{ topic: "Biểu diễn trên trục số" }, { topic: "Thứ tự phép tính" }], completedAll: false }
+      ]
+    };
+    populateClassFilter();
+    renderDashboard();
+    document.getElementById("statusMsg").textContent = "Đang hiển thị dữ liệu mẫu (nhấn Tải kết quả để lấy dữ liệu thật từ học sinh).";
+  }
+
+  function populateClassFilter() {
+    const sel = document.getElementById("classFilter");
+    const cur = sel.value;
+    const classes = new Set(Object.keys(appData.rosters || {}));
+    appData.records.forEach(r => { if (r.className) classes.add(r.className); });
+    sel.innerHTML = '<option value="ALL">Tất cả các lớp</option>';
+    Array.from(classes).sort().forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = "Lớp " + c;
+      sel.appendChild(opt);
+    });
+    if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+  }
+
+  function renderDashboard() {
+    const filterClass = document.getElementById("classFilter").value;
+    document.getElementById("lblCurrentClass").textContent = filterClass === "ALL" ? "Tất cả" : filterClass;
+
+    const filtered = filterClass === "ALL"
+      ? appData.records
+      : appData.records.filter(r => r.className === filterClass);
+
+    // Aggregate per student
+    const studentMap = {};
+    let totalQuestions = 0;
+    filtered.forEach(r => {
+      totalQuestions += r.total;
+      const key = r.name + "|" + r.className;
+      if (!studentMap[key]) {
+        studentMap[key] = {
+          name: r.name, className: r.className, heroClass: r.heroClass || "Hiệp sĩ",
+          stars: 0, xp: 0, maxRound: 1, completedAll: false, wrongByTopic: {}
+        };
+      }
+      const st = studentMap[key];
+      st.stars += r.stars;
+      st.xp += r.xp;
+      st.maxRound = Math.max(st.maxRound, r.round || 1);
+      if (r.completedAll || r.round >= 5) st.completedAll = true;
+      (r.wrongItems || []).forEach(w => {
+        const t = w.topic || r.topic || "Khác";
+        st.wrongByTopic[t] = (st.wrongByTopic[t] || 0) + 1;
+      });
+    });
+
+    const students = Object.values(studentMap);
+    const totalRoster = filterClass === "ALL"
+      ? Object.values(appData.rosters).reduce((a, b) => a + b, 0)
+      : (appData.rosters[filterClass] || students.length);
+    const pctPlay = totalRoster > 0 ? Math.round((students.length / totalRoster) * 100) : 0;
+    const finishedCount = students.filter(s => s.completedAll).length;
+
+    document.getElementById("kpiStudents").innerHTML = `${students.length}<span>/${totalRoster} em</span>`;
+    document.getElementById("kpiStudentsSub").textContent = `đã chơi ở nhà (${pctPlay}% sĩ số)`;
+    document.getElementById("kpiQuestions").textContent = totalQuestions.toLocaleString("vi-VN");
+    document.getElementById("kpiFinished").innerHTML = `${finishedCount} <span>em</span>`;
+
+    // Class Progress Cards
+    const classGrid = document.getElementById("classProgressGrid");
+    classGrid.innerHTML = "";
+    const classesToShow = filterClass === "ALL" ? Object.keys(appData.rosters) : [filterClass];
+    const barColors = ["#114B3E", "#C84B31", "#2563EB", "#D97706"];
+
+    classesToShow.forEach((cls, idx) => {
+      const clsRecs = appData.records.filter(r => r.className === cls);
+      const clsStudents = new Set(clsRecs.map(r => r.name)).size;
+      const clsTotalQ = clsRecs.reduce((s, r) => s + r.total, 0);
+      const siSo = appData.rosters[cls] || Math.max(clsStudents, 1);
+      const pct = Math.min(100, Math.round((clsStudents / siSo) * 100));
+      const color = barColors[idx % barColors.length];
+
+      classGrid.innerHTML += `
+        <div class="class-card">
+          <div class="class-badge">
+            <div class="class-name">${cls}</div>
+            <div class="class-total">sĩ số ${siSo}</div>
+          </div>
+          <div class="class-bar-wrap">
+            <div class="class-stat-text"><strong>${clsStudents}/${siSo} em</strong> đã chơi • <strong>${clsTotalQ.toLocaleString("vi-VN")} câu</strong></div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%; background:${color};"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    // Horizontal Bar Chart (Top 5 topics error rate)
+    const chartTopics = CORE_TOPICS.slice(0, 5);
+    const legendEl = document.getElementById("chartLegend");
+    legendEl.innerHTML = classesToShow.map((c, i) => `
+      <div class="legend-item"><span class="dot" style="background:${barColors[i % barColors.length]}"></span>${c}</div>
+    `).join("");
+
+    const chartEl = document.getElementById("barChartContainer");
+    chartEl.innerHTML = chartTopics.map(topic => {
+      const barsHtml = classesToShow.map((cls, i) => {
+        const clsRecs = appData.records.filter(r => r.className === cls);
+        const totalClsQ = clsRecs.reduce((s, r) => s + r.total, 0);
+        let wrongCnt = 0;
+        clsRecs.forEach(r => (r.wrongItems || []).forEach(w => { if ((w.topic || r.topic) === topic) wrongCnt++; }));
+        const pctErr = totalClsQ > 0 ? Math.min(100, Math.round((wrongCnt / Math.max(1, totalClsQ * 0.25)) * 100)) : 0;
+        return `
+          <div class="bar-line">
+            <div class="bar" style="width:${Math.max(2, pctErr)}%; background:${barColors[i % barColors.length]};"></div>
+            <span class="bar-val">${pctErr}%</span>
+          </div>
+        `;
+      }).join("");
+      return `
+        <div class="chart-row">
+          <div class="chart-label">${topic}</div>
+          <div class="bars-stack">${barsHtml}</div>
+        </div>
+      `;
+    }).join("");
+
+    // Support Table (Mục 3)
+    const topicSupport = {};
+    CORE_TOPICS.forEach(t => topicSupport[t] = { count: 0, students: new Set() });
+    students.forEach(st => {
+      Object.entries(st.wrongByTopic).forEach(([t, cnt]) => {
+        if (!topicSupport[t]) topicSupport[t] = { count: 0, students: new Set() };
+        topicSupport[t].count += cnt;
+        topicSupport[t].students.add(st.name);
+      });
+    });
+
+    const sortedTopics = Object.entries(topicSupport)
+      .filter(([, v]) => v.count > 0)
+      .sort((a, b) => b[1].count - a[1].count);
+
+    const supportBody = document.getElementById("supportTableBody");
+    supportBody.innerHTML = sortedTopics.length ? sortedTopics.map(([topic, info]) => {
+      const pct = totalQuestions > 0 ? Math.round((info.count / totalQuestions) * 100) : 0;
+      const tags = Array.from(info.students).map(name => `<span class="tag-student">${name}</span>`).join("");
+      return `
+        <tr>
+          <td><strong>${topic}</strong></td>
+          <td><span class="tag-weak">${info.count} lỗi (${pct}%)</span></td>
+          <td>${tags}</td>
+        </tr>
+      `;
+    }).join("") : `<tr><td colspan="3" style="text-align:center;color:var(--muted);">Chưa ghi nhận lỗi sai nào ở lớp này.</td></tr>`;
+
+    // Ranking Table (Mục 1)
+    const ranked = [...students].sort((a, b) => b.stars - a.stars || b.xp - a.xp);
+    document.getElementById("rankingTableBody").innerHTML = ranked.map((st, idx) => `
+      <tr>
+        <td><strong>${idx + 1}</strong></td>
+        <td><strong>${st.name}</strong></td>
+        <td>${st.className}</td>
+        <td>Vòng ${st.maxRound} • ${st.heroClass}</td>
+        <td>⭐ ${st.stars}</td>
+        <td>${st.xp} XP</td>
+      </tr>
+    `).join("");
+
+    // Individual Weakness Table (Mục 2)
+    document.getElementById("weaknessTableBody").innerHTML = ranked.map(st => {
+      const entries = Object.entries(st.wrongByTopic).sort((a, b) => b[1] - a[1]);
+      const totalWrong = entries.reduce((s, e) => s + e[1], 0);
+      const weakest = entries.length
+        ? `<span class="tag-weak">${entries[0][0]} (${entries[0][1]})</span>`
+        : `<span class="tag-good">Vững kiến thức</span>`;
+      return `
+        <tr>
+          <td><strong>${st.name}</strong></td>
+          <td>${st.className}</td>
+          <td>${totalWrong} câu</td>
+          <td>${weakest}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  fetchData();
+</script>
+</body>
+</html>
